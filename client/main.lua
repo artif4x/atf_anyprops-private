@@ -174,8 +174,14 @@ local function handlePlacementControls(isShift, stepRot, stepZ, state)
     if zUpAction then state.zOffset = state.zOffset + stepZ end
     if zDownAction then state.zOffset = state.zOffset - stepZ end
 
-    if reqFlipProp then state.pitch = (state.pitch == 0.0) and 90.0 or 0.0 reqFlipProp = false end
-    if reqSnapGround then state.zOffset = 0.0 reqSnapGround = false end
+    if reqFlipProp then
+        state.pitch = (state.pitch == 0.0) and 90.0 or 0.0
+        reqFlipProp = false
+    end
+    if reqSnapGround then
+        state.zOffset = 0.0
+        reqSnapGround = false
+    end
     if reqResetAngle then
         state.pitch = isPlacingWeapon and 90.0 or 0.0
         state.roll = 0.0
@@ -190,7 +196,12 @@ local function cancelPlacement()
     if isPlacingWeapon then
         if DoesEntityExist(currentPropEntity) then DeleteEntity(currentPropEntity) end
         if currentActiveItem then SetCurrentPedWeapon(cache.ped, joaat(currentActiveItem), true) end
-        currentPropEntity = nil currentActiveItem = nil currentPropMetadata = nil currentPropSlot = nil isPlacingWeapon = false lib.hideTextUI()
+        currentPropEntity = nil
+        currentActiveItem = nil
+        currentPropMetadata = nil
+        currentPropSlot = nil
+        isPlacingWeapon = false
+        lib.hideTextUI()
     else
         local itemData = Config.Items[currentActiveItem]
         local hasCollision = itemData.collision ~= false
@@ -198,7 +209,8 @@ local function cancelPlacement()
         SetEntityAlpha(currentPropEntity, 255, false)
         local boneIndex = GetPedBoneIndex(cache.ped, itemData.bone)
         AttachEntityToEntity(currentPropEntity, cache.ped, boneIndex, itemData.pos.x, itemData.pos.y, itemData.pos.z, itemData.rot.x, itemData.rot.y, itemData.rot.z, true, true, false, true, 1, true)
-        lib.hideTextUI() lib.showTextUI('[E] วางของ', {position = 'right-center'})
+        lib.hideTextUI()
+        lib.showTextUI('[E] วางของ', {position = 'right-center'})
     end
 end
 
