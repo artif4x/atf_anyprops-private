@@ -1259,8 +1259,8 @@ RegisterKeyMapping('+atf_flip_prop', 'Swap 90 degree (Placement)', 'keyboard', '
 
 RegisterCommand('+atf_z_up', function() if isPlacing then reqZUp = true end end, false)
 RegisterCommand('-atf_z_up', function() reqZUp = false end, false)
-RegisterKeyMapping('+atf_z_up', 'Move Up (Placement)', 'keyboard', 'OEM_4') -- [
+RegisterKeyMapping('+atf_z_up', 'Move Up (Placement)', 'keyboard', 'OEM_4') -- ปุ่ม [
 
 RegisterCommand('+atf_z_down', function() if isPlacing then reqZDown = true end end, false)
 RegisterCommand('-atf_z_down', function() reqZDown = false end, false)
-RegisterKeyMapping('+atf_z_down', 'Move Down (Placement)', 'keyboard', 'OEM_6') -- ]
+RegisterKeyMapping('+atf_z_down', 'Move Down (Placement)', 'keyboard', 'OEM_6') -- ปุ่ม ]
