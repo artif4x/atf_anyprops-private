@@ -147,7 +147,7 @@ local function forceDropProp()
     local heading = GetEntityHeading(ped)
     
     local dropCoords = vec3(coords.x + (math.random(-5, 5) / 10.0), coords.y + (math.random(-5, 5) / 10.0), coords.z - 0.9)
-    local dropRot = vec3(0.0, 0.0, heading) -- [แก้ไข] ทำเป็น vector3
+    local dropRot = vec3(0.0, 0.0, heading)
     TriggerServerEvent('atf_anyprops:server:placeProp', currentActiveItem, dropCoords, dropRot, nil, true, currentPropMetadata, currentPropSlot, currentPlaceAmount)
     removeProp(false)
 end
@@ -397,7 +397,6 @@ local function startPropThread()
                    IsEntityPlayingAnim(ped, 'cellphone@', 'cellphone_text_read_base', 3) or
                    IsEntityPlayingAnim(ped, 'cellphone@', 'cellphone_call_listen_base', 3) then removeProp(false) break end
 
-                -- 🟢 [แก้บัค 1] ป้องกันกรณี Script หมอหรืออื่นๆ บังคับถืออาวุธแปลกๆ
                 local weaponHash = GetSelectedPedWeapon(ped)
                 if weaponHash ~= `WEAPON_UNARMED` and weaponHash ~= 0 then 
                     stashPropAndRemove(true) 
@@ -511,9 +510,6 @@ CreateThread(function()
                         local sizeX = math.abs(maxDim.x - minDim.x)
                         local sizeY = math.abs(maxDim.y - minDim.y)
                         
-                        -- 🟢 [แก้ปัญหาทะลุกันในแนวราบ] 
-                        -- ผลักของให้ออกห่างจากศูนย์กลาง 90% ของขนาดตัวมันเอง (จะได้วางต่อกันพอดี ไม่สิงร่าง)
-                        -- และบังคับให้ของชิ้นเล็กๆ ห่างกันอย่างน้อย 0.2 เมตร (ไม่กระจุกเกินไป)
                         local spreadX = math.max(0.2, sizeX * 0.9)
                         local spreadY = math.max(0.2, sizeY * 0.9)
                         
@@ -523,8 +519,6 @@ CreateThread(function()
                             local extra2 = CreateObjectNoOffset(model, oCoords.x, oCoords.y, oCoords.z, false, false, false)
                             SetEntityCollision(extra1, false, false) SetEntityCollision(extra2, false, false)
                             
-                            -- 🟢 [จัดกลุ่ม 5 ชิ้นแรก] วางด้าน ซ้าย-ขวา 
-                            -- ใส่ math.random ให้ตำแหน่งเบี่ยงนิดๆ จะได้ไม่ดูตั้งใจเรียงเกินไป
                             AttachEntityToEntity(extra1, obj, -1, spreadX, math.random(-10, 10) / 100.0, 0.0, 0.0, 0.0, math.random(-20, 20) + 0.0, false, false, false, false, 2, true)
                             AttachEntityToEntity(extra2, obj, -1, -spreadX, math.random(-10, 10) / 100.0, 0.0, 0.0, 0.0, math.random(-20, 20) + 0.0, false, false, false, false, 2, true)
                             
@@ -535,7 +529,6 @@ CreateThread(function()
                             local extra4 = CreateObjectNoOffset(model, oCoords.x, oCoords.y, oCoords.z, false, false, false)
                             SetEntityCollision(extra3, false, false) SetEntityCollision(extra4, false, false)
                             
-                            -- 🟢 [จัดกลุ่ม 10 ชิ้น] วางด้าน หน้า-หลัง (บวกกับ ซ้าย-ขวา ด้านบน จะกลายเป็นรูปกากบาทพอดี)
                             AttachEntityToEntity(extra3, obj, -1, math.random(-10, 10) / 100.0, spreadY, 0.0, 0.0, 0.0, math.random(70, 110) + 0.0, false, false, false, false, 2, true)
                             AttachEntityToEntity(extra4, obj, -1, math.random(-10, 10) / 100.0, -spreadY, 0.0, 0.0, 0.0, math.random(70, 110) + 0.0, false, false, false, false, 2, true)
                             
@@ -838,13 +831,11 @@ AddStateBagChangeHandler('renderData', nil, function(bagName, key, value, _reser
         while (not entity or entity == 0) and timeout < 150 do Wait(100); entity = GetEntityFromStateBagName(bagName); timeout = timeout + 1 end
         
         if entity and entity > 0 then
-            -- [แก้ไข] ดึงและโหลดโมเดลของแต่งปืนทุกชิ้นมาแปะที่ Prop บนพื้น
             if value.components then
                 for _, comp in ipairs(value.components) do
                     local compHash = type(comp) == 'string' and joaat(string.upper(comp)) or comp
                     local compModel = GetWeaponComponentTypeModel(compHash)
                     
-                    -- บังคับโหลดโมเดลของแต่งชิ้นนั้นๆ
                     if compModel and compModel ~= 0 then 
                         lib.requestModel(compModel, 1000) 
                     end
@@ -853,7 +844,6 @@ AddStateBagChangeHandler('renderData', nil, function(bagName, key, value, _reser
                 end
             end
             
-            -- [แถมให้] ใส่สีปืนให้ตรงกับตอนถือ
             if value.tint then
                 SetWeaponObjectTintIndex(entity, value.tint)
             end
