@@ -1,5 +1,5 @@
 # atf_anyprops-private
-📦 ATF AnyProps: Serious RP Placement System
+📦 ATF AnyProps: Hold Props & Placement System
 
 ATF AnyProps คือสคริปต์ที่ถูกออกแบบมาเพื่อเซิร์ฟเวอร์ Serious Roleplay โดยเฉพาะ มุ่งเน้นความสมจริง (Immersion) ประสิทธิภาพสูงสุด (Performance) และความปลอดภัยขั้นสูงสุด (Zero-Trust Architecture) เพื่อให้ผู้เล่นสามารถโต้ตอบกับสภาพแวดล้อมได้โดยไม่ต้องกังวลเรื่องบัคหรือการแสวงหาผลประโยชน์ (Exploit)
 
