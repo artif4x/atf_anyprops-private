@@ -170,9 +170,12 @@ RegisterNetEvent('atf_anyprops:server:placeProp', function(itemName, coords, rot
         local entity = CreateObjectNoOffset(modelToSpawn, coords.x, coords.y, coords.z, true, true, false)
         if not entity or entity == 0 then
             exports.ox_inventory:AddItem(src, itemName, amount, actualMetadata, targetSlot)
-            TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'ไม่สามารถสร้างโมเดลนี้ได้ (คืนไอเทมแล้ว)'})
+            TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'เซิร์ฟเวอร์ไม่สามารถสร้างโมเดลนี้ได้ (คืนไอเทมแล้ว)'})
             return
-        end 
+        end
+
+        local playerBucket = GetPlayerRoutingBucket(src)
+        SetEntityRoutingBucket(entity, playerBucket)
         
         Entity(entity).state.isAtfProp = true
         Entity(entity).state.placedItemName = itemName
@@ -283,18 +286,14 @@ RegisterNetEvent('atf_anyprops:server:placeWeaponProp', function(itemName, netId
             end
 
             if NetworkGetEntityOwner(entity) ~= src then
-                if Entity(entity).state.isAtfProp then
-                    sendDiscordLog(src, "⚠️ ตรวจพบการพยายามลบของคนอื่น (Weaponized Deletion)", "พยายามส่ง NetID ของไอเทมที่วางอยู่แล้วมาเพื่อลบทิ้ง/สวมรอย", 16711680)
-                    DropPlayer(src, "ระบบตรวจพบการพยายามสวมรอย Entity (Exploit)")
-                    return
-                end
-
                 exports.ox_inventory:AddItem(src, itemName, amount, actualMetadata, targetSlot)
-                TriggerClientEvent('atf_anyprops:client:deleteFailedProp', src, netId)
                 TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'เซิร์ฟเวอร์ซิงค์ข้อมูลไม่ทัน กรุณาเก็บแล้ววางใหม่อีกครั้ง'})
-                sendDiscordLog(src, "⚠️ Entity Owner Mismatch", "พบการส่ง NetID ที่ตัวเองไม่ได้เป็นเจ้าของ\n(คืนไอเทมและสั่งลบโมเดลผีทิ้งแล้ว)", 16711680)
+                sendDiscordLog(src, "⚠️ Entity Owner Mismatch", "พบการส่ง NetID ที่ตัวเองไม่ได้เป็นเจ้าของ\n(คืนไอเทมและยกเลิกการวาง)", 16711680)
                 return
             end
+
+            local playerBucket = GetPlayerRoutingBucket(src)
+            SetEntityRoutingBucket(entity, playerBucket)
 
             Entity(entity).state.isAtfProp = true
             Entity(entity).state.placedItemName = itemName
@@ -322,7 +321,6 @@ RegisterNetEvent('atf_anyprops:server:placeWeaponProp', function(itemName, netId
             sendDiscordLog(src, "🔫 ผู้เล่นวางอาวุธ", "อาวุธ: **" .. itemName .. "**\nพิกัด (X, Y, Z): `" .. string.format("%.2f, %.2f, %.2f", coords.x, coords.y, coords.z) .. "`", 15105570)
             TriggerClientEvent('ox_lib:notify', src, {title = 'ระบบ', description = 'วางอาวุธเรียบร้อย', type = 'success'})
         else
-            -- 🟢 ถ้าโหลดโมเดลไม่ทันจริงๆ จะลบ Prop ผีฝั่ง Client ทิ้ง และคืนของเข้าตัว
             exports.ox_inventory:AddItem(src, itemName, amount, actualMetadata, targetSlot)
             TriggerClientEvent('atf_anyprops:client:deleteFailedProp', src, netId)
             TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'เซิร์ฟเวอร์โหลดโมเดลไม่ทัน (คืนไอเทมแล้ว)'})
