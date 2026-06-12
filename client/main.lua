@@ -43,7 +43,7 @@ local currentPropSlot = nil
 -- Helper: ดึงข้อมูลไอเทมจาก Config.Items หรือคืนค่า DefaultFallback ถ้าไม่เจอ
 local function GetItemData(itemName)
     if not itemName then return nil end
-    if GetItemData(itemName) then return GetItemData(itemName) end
+    if Config.Items[itemName] then return Config.Items[itemName] end
     
     -- ถ้าเป็นอาวุธ จะไม่ใช้ Fallback
     if string.find(string.upper(itemName), "WEAPON_") then return nil end 
