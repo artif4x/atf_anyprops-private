@@ -8,7 +8,7 @@ Config.System = {
 
 -- Roleplay Config
 Config.Roleplay = {
-    EnableActionCommand = true,  -- true = เปิดการใช้ /me หรือ /do ตอนทำอนิเมชั่น | false = ปิด
+    EnableActionCommand = true,  -- true = เปิดการใช้ /me หรือ /do ตอนทำอนิเมชั่น
     CommandType = 'me'           -- /me = me, /do = do, /ame = ame
 }
 
@@ -20,7 +20,6 @@ Config.UI = {
 -- Action Wrapper ระบบ Roleplay
 Config.PerformAction = function(text)
     if not Config.Roleplay.EnableActionCommand then return end 
-    
     ExecuteCommand(Config.Roleplay.CommandType .. ' ' .. text)
 end
 
@@ -47,6 +46,17 @@ Config.Controls = {
     StepRotFine = 1.0,  -- หมุนละเอียด (Shift + ปุ่มอื่น)
     StepZ = 0.1,        -- ขึ้น-ลงปกติ (เมตร)
     StepZFine = 0.01    -- ยกขึ้นลงละเอียด (Shift + ปุ่มอื่น)
+}
+
+-- ==========================================
+-- ระบบ Minimal Config (Fallback) v2
+-- ==========================================
+-- ค่าเริ่มต้นสำหรับไอเทมทุกชิ้นที่ "ไม่ได้" เขียนไว้ด้านล่าง (เสกเป็นถุงกระดาษถือมือเดียว)
+Config.DefaultFallback = {
+    prop = 'prop_paper_bag_01', 
+    bone = 28422,
+    pos = vec3(0.040, -0.040, -0.060),
+    rot = vec3(90.0, 0.0, 0.0),
 }
 
 -- ค้นหา Bone ID https://wiki.rage.mp/index.php?title=Bones
