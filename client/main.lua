@@ -1319,3 +1319,11 @@ end, false)
 
 -- ผูกปุ่มลัด H (ผู้เล่นสามารถไปเปลี่ยนเองได้ใน Settings > Key Bindings > FiveM)
 RegisterKeyMapping('atf_item_menu', 'Open Item Menu', 'keyboard', 'H')
+
+RegisterCommand('holditem', function()
+    ExecuteCommand('atf_item_menu')
+end, false)
+
+RegisterCommand('hold', function()
+    ExecuteCommand('atf_item_menu')
+end, false)
