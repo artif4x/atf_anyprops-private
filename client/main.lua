@@ -426,25 +426,24 @@ end
 
 local trackedProps = {}
 
--- Optimization Entity Tracker
+-- Event-Driven Entity Tracker
 AddStateBagChangeHandler('isAtfProp', nil, function(bagName, key, value, _reserved, replicated)
     if not value then return end
-    local entity = GetEntityFromStateBagName(bagName)
-    if entity and entity > 0 then
-        trackedProps[entity] = true
-    end
-end)
--- ค้นหา Prop ที่เพิ่งสตรีมเข้ามารอบตัว ดึงเข้าบัญชีทุก 5 วินาที
-CreateThread(function()
-    while true do
-        Wait(5000) 
-        local objects = GetGamePool('CObject')
-        for _, obj in ipairs(objects) do
-            if not trackedProps[obj] and Entity(obj).state.isAtfProp then
-                trackedProps[obj] = true
-            end
+    
+    CreateThread(function()
+        local entity = GetEntityFromStateBagName(bagName)
+        local timeout = 0
+        
+        while (not entity or entity == 0) and timeout < 50 do
+            Wait(100)
+            entity = GetEntityFromStateBagName(bagName)
+            timeout = timeout + 1
         end
-    end
+
+        if entity and entity > 0 then
+            trackedProps[entity] = true
+        end
+    end)
 end)
 
 -- Threads / Loops
@@ -511,8 +510,6 @@ CreateThread(function()
                             local extra2 = CreateObjectNoOffset(model, oCoords.x, oCoords.y, oCoords.z, false, false, false)
                             SetEntityCollision(extra1, false, false) SetEntityCollision(extra2, false, false)
                             
-                            -- 🟢 [จัดกลุ่ม 5 ชิ้นแรก] วางด้าน ซ้าย-ขวา 
-                            -- ใส่ math.random ให้ตำแหน่งเบี่ยงนิดๆ จะได้ไม่ดูตั้งใจเรียงเกินไป
                             AttachEntityToEntity(extra1, obj, -1, spreadX, math.random(-10, 10) / 100.0, 0.0, 0.0, 0.0, math.random(-20, 20) + 0.0, false, false, false, false, 2, true)
                             AttachEntityToEntity(extra2, obj, -1, -spreadX, math.random(-10, 10) / 100.0, 0.0, 0.0, 0.0, math.random(-20, 20) + 0.0, false, false, false, false, 2, true)
                             
@@ -523,7 +520,6 @@ CreateThread(function()
                             local extra4 = CreateObjectNoOffset(model, oCoords.x, oCoords.y, oCoords.z, false, false, false)
                             SetEntityCollision(extra3, false, false) SetEntityCollision(extra4, false, false)
                             
-                            -- 🟢 [จัดกลุ่ม 10 ชิ้น] วางด้าน หน้า-หลัง (บวกกับ ซ้าย-ขวา ด้านบน จะกลายเป็นรูปกากบาทพอดี)
                             AttachEntityToEntity(extra3, obj, -1, math.random(-10, 10) / 100.0, spreadY, 0.0, 0.0, 0.0, math.random(70, 110) + 0.0, false, false, false, false, 2, true)
                             AttachEntityToEntity(extra4, obj, -1, math.random(-10, 10) / 100.0, -spreadY, 0.0, 0.0, 0.0, math.random(70, 110) + 0.0, false, false, false, false, 2, true)
                             
@@ -829,7 +825,6 @@ AddStateBagChangeHandler('renderData', nil, function(bagName, key, value, _reser
         while (not entity or entity == 0) and timeout < 150 do Wait(100); entity = GetEntityFromStateBagName(bagName); timeout = timeout + 1 end
         
         if entity and entity > 0 then
-            -- [แก้ไข] ดึงและโหลดโมเดลของแต่งปืนทุกชิ้นมาแปะที่ Prop บนพื้น
             if value.components then
                 for _, comp in ipairs(value.components) do
                     local compHash = type(comp) == 'string' and joaat(string.upper(comp)) or comp
@@ -844,7 +839,6 @@ AddStateBagChangeHandler('renderData', nil, function(bagName, key, value, _reser
                 end
             end
             
-            -- [แถมให้] ใส่สีปืนให้ตรงกับตอนถือ
             if value.tint then
                 SetWeaponObjectTintIndex(entity, value.tint)
             end

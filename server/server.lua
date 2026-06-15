@@ -116,7 +116,7 @@ RegisterNetEvent('atf_anyprops:server:placeProp', function(itemName, coords, rot
     local distance = #(playerCoords - coords)
     
     local safeBuffer = Config.Distance.Placement + 2.0  -- เกินนิดหน่อย จะขึ้นแจ้งเตือน
-    local exploitBuffer = Config.Distance.Placement + 30.0 -- ไกลเกิน ต้องสงสัยว่าโปรจะแจ้ง Log แล้วเตะก่อน ไม่แบน
+    local exploitBuffer = Config.Distance.Placement + 30.0 
 
     if distance > exploitBuffer then 
         sendDiscordLog(src, "⚠️ ตรวจพบการวางของผิดปกติ (Placement Exploit)", "พยายามวางไอเทม: **" .. itemName .. "**\nระยะห่าง: **" .. math.floor(distance) .. "** เมตร (เกินกำหนดจากที่ตั้งไว้)", 16711680)
@@ -138,7 +138,6 @@ RegisterNetEvent('atf_anyprops:server:placeProp', function(itemName, coords, rot
                 return
             end
         else
-            -- ถ้ารถไม่มีอยู่จริงบนเซิร์ฟเวอร์ ให้ยกเลิกการติดรถ ป้องกันบัค
             attachData = nil 
         end
     end
@@ -179,18 +178,15 @@ RegisterNetEvent('atf_anyprops:server:placeProp', function(itemName, coords, rot
         
         Entity(entity).state.isAtfProp = true
         Entity(entity).state.placedItemName = itemName
-        -- เก็บตัวเต็มไว้ใน Server Memory
         local netId = NetworkGetNetworkIdFromEntity(entity)
         serverPropsMetadata[netId] = actualMetadata
 
-        -- ส่งไปให้ Client เฉพาะข้อมูลที่จำเป็นต้องใช้โหลดโมเดลของแต่งปืน
         if actualMetadata and (actualMetadata.components or actualMetadata.tint) then
             Entity(entity).state.renderData = { components = actualMetadata.components, tint = actualMetadata.tint }
         end
         Entity(entity).state.itemAmount = amount
         Entity(entity).state.collision = (itemData and itemData.collision ~= false) or true
         
-        -- บังคับให้การวางของบนพื้นติด Freeze เสมอ
         local shouldFreeze = true 
         if itemData and itemData.freeze ~= nil then
             shouldFreeze = itemData.freeze
@@ -374,7 +370,18 @@ local function processPickupLogic(src, netId, reqAmount, isMassPickup)
 
     local itemName = Entity(entity).state.placedItemName
     local metadata = serverPropsMetadata[netId]
-    local actualAmountOnGround = Entity(entity).state.itemAmount or 1
+
+        if metadata and metadata.degrade then
+            if os.time() >= metadata.degrade then
+                TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'ไอเทมชิ้นนี้หมดอายุ/เน่าเสียไปแล้ว ไม่สามารถเก็บได้'})
+                DeleteEntity(entity)
+                serverPropsMetadata[netId] = nil
+                activePickups[netId] = nil
+                return false
+            end
+        end
+
+        local actualAmountOnGround = Entity(entity).state.itemAmount or 1
     
     reqAmount = math.floor(tonumber(reqAmount) or actualAmountOnGround)
     if reqAmount > actualAmountOnGround then reqAmount = actualAmountOnGround end
