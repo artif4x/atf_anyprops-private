@@ -426,7 +426,7 @@ end
 
 local trackedProps = {}
 
--- Event-Driven Entity Tracker
+-- Event-Driven Entity Tracker (ทำงานเฉพาะตอนมีของสตรีมเข้าจอเท่านั้น)
 AddStateBagChangeHandler('isAtfProp', nil, function(bagName, key, value, _reserved, replicated)
     if not value then return end
     
@@ -434,6 +434,7 @@ AddStateBagChangeHandler('isAtfProp', nil, function(bagName, key, value, _reserv
         local entity = GetEntityFromStateBagName(bagName)
         local timeout = 0
         
+        -- รอให้เอนจินเกมโหลดโมเดล Object ให้เสร็จสมบูรณ์เมื่อผู้เล่นเดินเข้าใกล้
         while (not entity or entity == 0) and timeout < 50 do
             Wait(100)
             entity = GetEntityFromStateBagName(bagName)
@@ -925,6 +926,12 @@ end)
 
 RegisterNetEvent('atf_anyprops:client:toggleProp', function(itemName, metadata, slot)
     if isStashing then return end
+    if metadata and metadata.degrade then
+        if os.time() >= metadata.degrade then
+            lib.notify({type = 'error', description = 'ไอเทมชิ้นนี้เน่าเสีย/หมดอายุไปแล้ว ไม่สามารถหยิบมาถือได้'})
+            return
+        end
+    end
 
     local itemData = Config.Items[itemName]
     if not itemData then return end
